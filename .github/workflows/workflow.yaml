@@ -6,8 +6,8 @@ on:
   push:
     branches: [main]
     # only when the workflow is modified
-    paths:
-      - '.github/workflows/workflow.yaml'
+    #paths:
+    #  - '.github/workflows/workflow.yaml'
     paths-ignore:
       - '.github/workflows/prometheus.yaml'
 
