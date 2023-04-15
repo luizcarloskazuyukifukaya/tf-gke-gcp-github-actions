@@ -95,6 +95,7 @@ jobs:
         helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
         helm repo update
         echo 'Now install Prometheus Community helm charts'
+        kubectl create namespace $HELM_PROMETHEUS_NAME --dry-run=client -o yaml | kubectl apply -f -
         helm install $HELM_PROMETHEUS_NAME prometheus-community/kube-prometheus-stack --wait -f prometheus/values.yaml
         # values.yaml provided to change the default configuration
         # End of command for Prometheus installation
