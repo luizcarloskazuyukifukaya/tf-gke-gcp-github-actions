@@ -4,8 +4,8 @@ on:
   push:
     branches:
     - main
-  pull_request:
-
+  paths-ignore:
+    - '.github/workflow/prometheus.yaml'
 jobs:
   terraform:
     name: 'Terraform'
