@@ -96,21 +96,21 @@ jobs:
         helm repo update
         echo 'Now install Prometheus Community helm charts'
         kubectl create namespace $HELM_PROMETHEUS_NAME --dry-run=client -o yaml | kubectl apply -f -
-        helm install $HELM_PROMETHEUS_NAME prometheus-community/kube-prometheus-stack --wait -f prometheus/values.yaml
+        helm install $HELM_PROMETHEUS_NAME prometheus-community/kube-prometheus-stack --wait -f prometheus/values.yaml -n $HELM_PROMETHEUS_NAME
         # values.yaml provided to change the default configuration
         # End of command for Prometheus installation
         echo 'AFTER Prometheus intalled'
-        kubectl get all
+        kubectl get all -n $HELM_PROMETHEUS_NAME
         #echo 'Node External IP Addresses:'
         #kubectl get nodes -o wide | awk '{print $7}'
         helm list
         echo 'ALL kubernetes services'
-        kubectl get svc -o wide
+        kubectl get svc -o wide -n $HELM_PROMETHEUS_NAME
     
     # Show URL information
     - name: 'Show Prometheus information'
       run: |
         echo 'INFORMATION TO ACCESS PROMETHEUS'
-        kubectl get pods -l "release=prometheus"
-        kubectl get svc -l "release=prometheus"
-        kubectl get deploy -l "release=prometheus"
+        kubectl get pods -l "release=prometheus" -n $HELM_PROMETHEUS_NAME
+        kubectl get svc -l "release=prometheus" -n $HELM_PROMETHEUS_NAME
+        kubectl get deploy -l "release=prometheus" -n $HELM_PROMETHEUS_NAME
