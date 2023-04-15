@@ -1,0 +1,111 @@
+# https://medium.com/@onefabulousginger/using-github-actions-to-deploy-to-gke-with-helm-81855414db0b
+
+# This workflow will install Prometheus on the kubernetes clusters for
+# monitoring. The install is done with helm chart.
+
+name: 'Install Prometheus'
+
+on:
+  workflow_run:
+    workflows: |
+      - 'Terraform CI'
+    branches: [main]
+    types:
+      - completed
+
+  push:
+    branches:
+      - 'main'
+    # only when the workflow is modified
+    paths:
+      - '.github/workflows/prometheus.yaml'
+
+# Environment variables available to all jobs and steps in this workflow
+env:
+  GKE_PROJECT: luiz-devops-cicd
+  GKE_EMAIL: ${{ secrets.GKE_EMAIL }}
+  GKE_REGION: us-central1
+  GKE_CLUSTER: luiz-devops-cicd-k8s
+  HELM_PROMETHEUS_NAME: prometheus
+
+jobs:
+  install-prometheus:
+    name: Install Prometheus
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Checkout
+      uses: actions/checkout@master
+
+    # https://github.com/google-github-actions/setup-gcloud#Authorization
+    - id: 'auth'
+      uses: 'google-github-actions/auth@v1'
+      with:
+        credentials_json: '${{ secrets.GKE_KEY}}'
+
+    - name: 'Set up Cloud SDK'
+      uses: 'google-github-actions/setup-gcloud@v1'
+
+    # https://github.com/google-github-actions/setup-gcloud
+    - name: 'Use gcloud CLI'
+      run: 'gcloud info'
+
+    # Configure docker to use the gcloud command-line tool as a credential helper
+    - name: 'Set up docker to authenticate via gcloud' 
+      run: |
+        gcloud auth configure-docker -q
+    # Install gke-gcloud-auth-plugin
+    # https://cloud.google.com/blog/products/containers-kubernetes/kubectl-auth-changes-in-gke
+    - name: 'Install gke-gcloud-auth-plugin'
+      run: |
+        gcloud components install gke-gcloud-auth-plugin -q
+    
+    # Install helm
+    - name: 'Install Helm'
+      run: |
+        #curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
+        curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+        chmod 700 get_helm.sh
+        ./get_helm.sh
+        # Install using packet manager (Ubuntu)
+        #curl https://baltocdn.com/helm/signing.asc | gpg --dearmor | sudo tee /usr/share/keyrings/helm.gpg > /dev/null
+        #sudo apt-get install apt-transport-https --yes
+        #echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/helm.gpg] https://baltocdn.com/helm/stable/debian/ all main" | sudo tee /etc/apt/sources.list.d/helm-stable-debian.list
+        #sudo apt-get update
+        #sudo apt-get install helm
+    # Config GKE cluster to be accessed with kubectl/helm
+    - name: 'Set kubernetes context'
+      run: |
+        gcloud container clusters get-credentials $GKE_CLUSTER \
+          --region $GKE_REGION \
+          --project $GKE_PROJECT
+        kubectl config get-contexts
+        kubectl config current-context
+    # Deploy the Docker image to the GKE cluster
+    - name: 'Deploy Prometheus with helm'
+      run: |
+        echo 'BEFORE Prometheus install'
+        helm list
+        # HERE to add commands to install Prometheus with helm chart
+        # Reference: https://www.youtube.com/watch?v=6xmWr7p5TE0
+        # Official: https://github.com/prometheus-community/helm-charts
+        echo 'Add repo for Prometheus Community helm charts'
+        helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+        helm repo update
+        echo 'Now install Prometheus Community helm charts'
+        echo 'Release name: "$HELM_PROMETHEUS_NAME"'
+        helm install $HELM_PROMETHEUS_NAME prometheus-community/kube-prometheus-stack --wait
+        # End of command for Prometheus installation
+        echo 'AFTER Prometheus intalled'
+        kubectl get all
+        #echo 'Node External IP Addresses:'
+        #kubectl get nodes -o wide | awk '{print $7}'
+        helm list
+        echo 'ALL kubernetes services'
+        kubectl get svc -o wide
+    
+    # Show URL information
+    - name: 'Show Prometheus URL information'
+      run: |
+        echo 'INFORMATION TO ACCESS PROMETHEUS'
+        kubectl get svc
