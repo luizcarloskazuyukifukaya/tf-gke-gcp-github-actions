@@ -1,3 +1,5 @@
+# This is the workflow to build the GKE with Terraform configuration file
+#
 name: 'Terraform CI'
 
 on:
