@@ -94,7 +94,7 @@ jobs:
         helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
         helm repo update
         echo 'Now install Prometheus Community helm charts'
-        helm install $HELM_PROMETHEUS_NAME prometheus-community/kube-prometheus-stack --wait -f prometheus/values.yaml
+        helm install $HELM_PROMETHEUS_NAME prometheus-community/kube-prometheus-stack -n $HELM_PROMETHEUS_NAME --wait -f prometheus/values.yaml
         # values.yaml provided to change the default configuration
         # End of command for Prometheus installation
         echo 'AFTER Prometheus intalled'
