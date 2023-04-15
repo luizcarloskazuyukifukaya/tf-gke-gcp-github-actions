@@ -1695,7 +1695,8 @@ kubeStateMetrics:
 ## Configuration for kube-state-metrics subchart
 ##
 kube-state-metrics:
-  namespaceOverride: ""
+  namespaceOverride: true
+  #namespaceOverride: ""
   rbac:
     create: true
   releaseLabel: true
