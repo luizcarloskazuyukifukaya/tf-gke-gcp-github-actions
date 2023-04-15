@@ -94,7 +94,8 @@ jobs:
         helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
         helm repo update
         echo 'Now install Prometheus Community helm charts'
-        helm install $HELM_PROMETHEUS_NAME prometheus-community/kube-prometheus-stack --wait
+        helm install $HELM_PROMETHEUS_NAME prometheus-community/kube-prometheus-stack --wait -f prometheus/values.yaml
+        # values.yaml provided to change the default configuration
         # End of command for Prometheus installation
         echo 'AFTER Prometheus intalled'
         kubectl get all
@@ -105,7 +106,9 @@ jobs:
         kubectl get svc -o wide
     
     # Show URL information
-    - name: 'Show Prometheus URL information'
+    - name: 'Show Prometheus information'
       run: |
         echo 'INFORMATION TO ACCESS PROMETHEUS'
-        kubectl get svc
+        kubectl get pods -l "release=prometheus"
+        kubectl get svc -l "release=prometheus"
+        kubectl get deploy -l "release=prometheus"

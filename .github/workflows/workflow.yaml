@@ -10,6 +10,7 @@ on:
     #  - '.github/workflows/workflow.yaml'
     paths-ignore:
       - '.github/workflows/prometheus.yaml'
+      - 'prometheus/**'
 
 jobs:
   terraform:
