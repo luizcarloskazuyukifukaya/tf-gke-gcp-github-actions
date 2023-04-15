@@ -4,10 +4,12 @@ name: 'Terraform CI'
 
 on:
   push:
-    branches:
-      - main
-  paths-ignore:
-    - '.github/workflow/prometheus.yaml'
+    branches: [main]
+    # only when the workflow is modified
+    paths:
+      - '.github/workflows/workflow.yaml'
+    paths-ignore:
+      - '.github/workflows/prometheus.yaml'
 
 jobs:
   terraform:
