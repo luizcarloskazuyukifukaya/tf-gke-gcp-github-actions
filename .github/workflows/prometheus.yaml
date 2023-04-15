@@ -94,7 +94,7 @@ jobs:
         helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
         helm repo update
         echo 'Now install Prometheus Community helm charts'
-        echo 'Release name: "$HELM_PROMETHEUS_NAME"'
+        echo 'Release name: $HELM_PROMETHEUS_NAME'
         helm install $HELM_PROMETHEUS_NAME prometheus-community/kube-prometheus-stack --wait
         # End of command for Prometheus installation
         echo 'AFTER Prometheus intalled'
