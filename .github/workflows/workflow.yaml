@@ -3,9 +3,10 @@ name: 'Terraform CI'
 on:
   push:
     branches:
-    - main
+      - main
   paths-ignore:
     - '.github/workflow/prometheus.yaml'
+
 jobs:
   terraform:
     name: 'Terraform'
